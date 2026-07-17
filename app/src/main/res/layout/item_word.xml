@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@color/wm_card"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Upper row: content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- State accent bar -->
+            <View
+                android:id="@+id/stateBar"
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:visibility="invisible" />
+
+            <!-- LEFT zone: word info - click to play audio -->
+            <LinearLayout
+                android:id="@+id/leftZone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="35"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <!-- Word + POS inline -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvWord"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/wm_text"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.01"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvPos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="@color/wm_text_tertiary"
+                        android:textStyle="italic"
+                        android:maxLines="1" />
+                </LinearLayout>
+
+                <!-- Phonetic -->
+                <TextView
+                    android:id="@+id/tvPhonetic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
+                    android:textColor="@color/wm_text_tertiary"
+                    android:maxLines="1"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Divider between left and right -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/wm_border" />
+
+            <!-- RIGHT zone: translation - click to expand -->
+            <LinearLayout
+                android:id="@+id/rightZone"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="65"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/tvTrans"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/wm_text_secondary"
+                    android:maxLines="3"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:textIsSelectable="false" />
+
+                <TextView
+                    android:id="@+id/chevron"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:gravity="center"
+                    android:text="▸"
+                    android:textSize="12sp"
+                    android:textColor="@color/wm_text_tertiary"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Expandable detail section -->
+        <LinearLayout
+            android:id="@+id/detailCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/wm_border" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- State toggle buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/btnKnown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="✓ 已掌握"
+                        android:textSize="13sp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/chip_background"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/btnReview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="! 需复习"
+                        android:textSize="13sp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/chip_background"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp" />
+                </LinearLayout>
+
+                <!-- Related words section -->
+                <LinearLayout
+                    android:id="@+id/sectionRelWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        style="@style/SectionLabel"
+                        android:text="@string/section_rel_words" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/relWordsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:flexWrap="wrap"
+                        app:flexDirection="row"
+                        app:alignItems="stretch" />
+                </LinearLayout>
+
+                <!-- Synonyms section -->
+                <LinearLayout
+                    android:id="@+id/sectionSynonyms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        style="@style/SectionLabel"
+                        android:text="@string/section_synonyms" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/synonymsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:flexWrap="wrap"
+                        app:flexDirection="row"
+                        app:alignItems="stretch" />
+                </LinearLayout>
+
+                <!-- Sentences section -->
+                <LinearLayout
+                    android:id="@+id/sectionSentences"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        style="@style/SectionLabel"
+                        android:text="@string/section_sentences" />
+
+                    <LinearLayout
+                        android:id="@+id/sentencesContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+
+                <!-- Phrases section -->
+                <LinearLayout
+                    android:id="@+id/sectionPhrases"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        style="@style/SectionLabel"
+                        android:text="@string/section_phrases" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/phrasesContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:flexWrap="wrap"
+                        app:flexDirection="row"
+                        app:alignItems="stretch" />
+                </LinearLayout>
+
+                <!-- Memory method section -->
+                <LinearLayout
+                    android:id="@+id/sectionMemory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/memory_block_background"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/section_memory"
+                            android:textSize="10sp"
+                            android:textColor="@color/wm_memory_label"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08"
+                            android:textAllCaps="true"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/tvMemoryMethod"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/wm_memory_text"
+                            android:lineSpacingExtra="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

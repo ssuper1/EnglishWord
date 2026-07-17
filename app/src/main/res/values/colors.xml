@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- WordMate Palette -->
+    <color name="wm_bg">#FAFAF8</color>
+    <color name="wm_card">#FFFFFF</color>
+    <color name="wm_text">#1C1C1C</color>
+    <color name="wm_text_secondary">#6B6560</color>
+    <color name="wm_text_tertiary">#9C9690</color>
+    <color name="wm_border">#E8E5E0</color>
+    <color name="wm_accent_known">#6A9B7A</color>
+    <color name="wm_accent_review">#C2780A</color>
+    <color name="wm_accent_word">#3B5998</color>
+
+    <!-- Section backgrounds -->
+    <color name="wm_syno_bg">#F0EEFA</color>
+    <color name="wm_syno_text">#5B4A8A</color>
+    <color name="wm_form_bg">#F5F3F0</color>
+    <color name="wm_sentence_bg">#F9F8F6</color>
+    <color name="wm_memory_bg_start">#FFF9ED</color>
+    <color name="wm_memory_bg_end">#FFF3D6</color>
+    <color name="wm_memory_text">#6B4F10</color>
+    <color name="wm_memory_label">#A07C20</color>
+    <color name="wm_memory_border">#F0E0B0</color>
+
+    <!-- Chip colors -->
+    <color name="wm_chip_text">#6B6560</color>
+    <color name="wm_chip_active_bg">#1C1C1C</color>
+    <color name="wm_chip_active_text">#FFFFFF</color>
+
+    <!-- Audio playing -->
+    <color name="wm_audio_playing_bg">#EDE8FF</color>
+    <color name="wm_audio_playing_border">#B8A8E0</color>
+    <color name="wm_audio_playing_text">#6B5BA0</color>
+
+    <!-- State row -->
+    <color name="wm_known_bg">#1A6A9B7A</color>
+    <color name="wm_review_bg">#1AC2780A</color>
+
+    <!-- Modal overlay -->
+    <color name="wm_overlay">#40000000</color>
+</resources>

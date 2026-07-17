@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">WordMate</string>
+    <string name="filter_all">全部</string>
+    <string name="filter_review">需复习</string>
+    <string name="filter_new">未标记</string>
+    <string name="filter_known">已掌握</string>
+    <string name="label_known">✓ 已掌握</string>
+    <string name="label_review">⚠ 需复习</string>
+    <string name="section_rel_words">📐 词形变化 &amp; 同根词</string>
+    <string name="section_synonyms">🔗 同近义词</string>
+    <string name="section_sentences">📝 例句</string>
+    <string name="section_phrases">💬 短语搭配</string>
+    <string name="section_memory">🧠 词根记忆法</string>
+    <string name="header_word_count">IELTS 核心词汇 · 共 %d 词</string>
+    <string name="empty_state_title">📭</string>
+    <string name="empty_state_desc">这个分组里还没有词汇。\n去标记一些单词吧。</string>
+    <string name="btn_close">关闭</string>
+    <string name="btn_play_audio">播放英音</string>
+    <string name="querying">查询中…</string>
+    <string name="not_found">本地及在线词典均未收录该词</string>
+    <string name="source_from">来自词库 · %s</string>
+    <string name="source_api">澄曜词典</string>
+    <string name="source_linking">由 %s 关联 · 正在联网查询…</string>
+    <string name="source_linked">由 %s 关联 · 澄曜词典</string>
+</resources>

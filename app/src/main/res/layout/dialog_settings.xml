@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/dialog_rounded_bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="显示范围设置"
+        android:textSize="18sp"
+        android:textColor="@color/wm_text"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvSettingsSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/wm_text_tertiary"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Start % -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="起始位置"
+        android:textSize="13sp"
+        android:textColor="@color/wm_text_secondary"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/startPercentText"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:text="0%"
+            android:textSize="18sp"
+            android:textColor="@color/wm_text"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <SeekBar
+            android:id="@+id/startSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="0" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/startWordInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="@color/wm_text_tertiary"
+        android:layout_marginBottom="20dp" />
+
+    <!-- End % -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="结束位置"
+        android:textSize="13sp"
+        android:textColor="@color/wm_text_secondary"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/endPercentText"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:text="10%"
+            android:textSize="18sp"
+            android:textColor="@color/wm_text"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <SeekBar
+            android:id="@+id/endSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="10" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/endWordInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="@color/wm_text_tertiary"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/rangeSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="@color/wm_accent_word"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="18dp" />
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/btnPreset10"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="前10%"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/chip_background"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:id="@+id/btnPreset25"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="前25%"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/chip_background"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:id="@+id/btnPreset50"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="前50%"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/chip_background"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:id="@+id/btnPresetAll"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="全部"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/chip_background" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/wm_border"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="14dp" />
+
+    <TextView
+        android:id="@+id/btnApply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="应用"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_apply_background"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center" />
+</LinearLayout>

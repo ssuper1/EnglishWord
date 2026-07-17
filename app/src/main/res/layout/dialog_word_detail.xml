@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:background="@drawable/dialog_rounded_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <!-- Word -->
+        <TextView
+            android:id="@+id/modalWord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="26sp"
+            android:textColor="@color/wm_text"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            android:maxLines="2" />
+
+        <!-- Phonetic -->
+        <TextView
+            android:id="@+id/modalPhonetic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/wm_text_tertiary"
+            android:layout_marginBottom="2dp"
+            android:gravity="center" />
+
+        <!-- POS -->
+        <TextView
+            android:id="@+id/modalPos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/wm_text_tertiary"
+            android:textStyle="italic"
+            android:layout_marginBottom="12dp"
+            android:gravity="center" />
+
+        <!-- Translation -->
+        <TextView
+            android:id="@+id/modalTrans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/wm_text_secondary"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Source -->
+        <TextView
+            android:id="@+id/modalSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="@color/wm_text_tertiary"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
+
+        <!-- Not found message -->
+        <TextView
+            android:id="@+id/modalNotFound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/wm_text_tertiary"
+            android:text="@string/not_found"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Audio button -->
+        <TextView
+            android:id="@+id/modalAudioBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_play_audio"
+            android:textSize="14sp"
+            android:textColor="@color/wm_text_secondary"
+            android:background="@drawable/btn_audio_modal_background"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Related words section -->
+        <LinearLayout
+            android:id="@+id/modalRelWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="14dp"
+            android:paddingTop="14dp"
+            android:gravity="start">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/wm_border"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                style="@style/SectionLabel"
+                android:text="@string/section_rel_words" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/modalRelWordsGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:flexDirection="row"
+                app:alignItems="stretch" />
+        </LinearLayout>
+
+        <!-- Synonyms section -->
+        <LinearLayout
+            android:id="@+id/modalSynonyms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="14dp"
+            android:paddingTop="14dp"
+            android:gravity="start">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/wm_border"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                style="@style/SectionLabel"
+                android:text="@string/section_synonyms" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/modalSynonymsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:flexDirection="row"
+                app:alignItems="stretch" />
+        </LinearLayout>
+
+        <!-- Sentences section -->
+        <LinearLayout
+            android:id="@+id/modalSentences"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="14dp"
+            android:paddingTop="14dp"
+            android:gravity="start">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/wm_border"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                style="@style/SectionLabel"
+                android:text="@string/section_sentences" />
+
+            <LinearLayout
+                android:id="@+id/modalSentencesList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- Phrases section -->
+        <LinearLayout
+            android:id="@+id/modalPhrases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="14dp"
+            android:paddingTop="14dp"
+            android:gravity="start">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/wm_border"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                style="@style/SectionLabel"
+                android:text="@string/section_phrases" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/modalPhrasesList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:flexDirection="row"
+                app:alignItems="stretch" />
+        </LinearLayout>
+
+        <!-- Divider + Close button -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/wm_border"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:id="@+id/modalCloseBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_close"
+            android:textSize="14sp"
+            android:textColor="@color/wm_text_secondary"
+            android:background="@drawable/btn_modal_close_background"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center" />
+    </LinearLayout>
+</ScrollView>

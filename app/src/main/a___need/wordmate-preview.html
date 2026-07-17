@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WordMate · 英语单词学习预览</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --text: #1C1C1C;
+    --text-secondary: #6B6560;
+    --text-tertiary: #9C9690;
+    --border: #E8E5E0;
+    --accent-known: #6A9B7A;
+    --accent-review: #C2780A;
+    --accent-word: #3B5998;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* App Shell */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 env(safe-area-inset-bottom) 0;
+    min-height: 100dvh;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,248,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .header-meta {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* Filter Chips */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    padding: 14px 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .chip:hover { border-color: #C0BBB5; }
+  .chip.active {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+  }
+
+  /* Word List */
+  .word-list {
+    padding: 0 16px 24px;
+  }
+
+  /* Word Row */
+  .word-item {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .word-item:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .word-item.expanded {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* State accent bar */
+  .word-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    transform: scaleY(0);
+  }
+  .word-item.state-known::before {
+    background: var(--accent-known);
+    transform: scaleY(1);
+  }
+  .word-item.state-review::before {
+    background: var(--accent-review);
+    transform: scaleY(1);
+  }
+
+  /* Word Row Main */
+  .word-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .word-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .word-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+  }
+
+  .word-head .word {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+
+  .word-head .phonetic {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: "Segoe UI Symbol", "Charis SIL", "DejaVu Sans", sans-serif;
+  }
+
+  .word-head .pos-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+
+  .word-cn {
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .word-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Buttons */
+  .btn-audio {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    color: var(--text-secondary);
+  }
+  .btn-audio:hover {
+    background: #F5F3F0;
+    border-color: #C0BBB5;
+  }
+  .btn-audio.playing {
+    background: #EDE8FF;
+    border-color: #B8A8E0;
+    color: #6B5BA0;
+  }
+  .btn-audio svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .btn-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    background: transparent;
+  }
+  .btn-mark.known { color: var(--accent-known); opacity: 0.3; }
+  .btn-mark.known.active { opacity: 0.9; background: rgba(106,155,122,0.12); }
+  .btn-mark.known:hover { opacity: 0.7; }
+  .btn-mark.review { color: var(--accent-review); opacity: 0.3; }
+  .btn-mark.review.active { opacity: 0.9; background: rgba(194,120,10,0.12); }
+  .btn-mark.review:hover { opacity: 0.7; }
+
+  .chevron {
+    color: var(--text-tertiary);
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-left: 2px;
+  }
+  .word-item.expanded .chevron {
+    transform: rotate(180deg);
+  }
+
+  /* State-dependent row */
+  .word-item.state-known .word-row {
+    opacity: 0.45;
+  }
+  .word-item.state-review .word-head .word {
+    font-weight: 700;
+    color: #5C3710;
+  }
+  .word-item.state-review .word-row {
+    background: linear-gradient(90deg, rgba(194,120,10,0.05) 0%, transparent 100%);
+  }
+
+  /* Detail Card */
+  .detail-card {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+  }
+  .word-item.expanded .detail-card {
+    max-height: 2000px;
+  }
+
+  .detail-inner {
+    padding: 0 16px 18px;
+    border-top: 1px solid var(--border);
+    margin: 0 16px;
+  }
+
+  /* Card Sections */
+  .detail-section {
+    margin-top: 14px;
+  }
+  .detail-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  /* Word Forms */
+  .forms-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .form-tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: var(--radius-sm);
+    background: #F5F3F0;
+    font-size: 13px;
+    transition: background 0.15s ease, transform 0.12s ease;
+    cursor: pointer;
+    user-select: none;
+  }
+  .form-tag:hover {
+    background: #EBE7E2;
+    transform: translateY(-1px);
+  }
+  .form-tag:active {
+    transform: scale(0.97);
+  }
+  .form-tag .form-pos {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-word);
+    text-transform: uppercase;
+  }
+  .form-tag .form-word {
+    font-weight: 500;
+    color: var(--text);
+  }
+  .form-tag .form-tran {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    margin-left: 2px;
+  }
+
+  /* Synonyms */
+  .syno-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .syno-chip {
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #F0EEFA;
+    font-size: 13px;
+    color: #5B4A8A;
+    transition: background 0.15s ease, transform 0.12s ease;
+    cursor: pointer;
+    user-select: none;
+  }
+  .syno-chip:hover {
+    background: #E4E0F5;
+    transform: translateY(-1px);
+  }
+  .syno-chip:active {
+    transform: scale(0.97);
+  }
+  .syno-chip .syno-pos {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  /* Sentences */
+  .sentence-item {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: #F9F8F6;
+    margin-bottom: 6px;
+  }
+  .sentence-item .s-en {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 3px;
+  }
+  .sentence-item .s-cn {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* Phrases */
+  .phrase-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: var(--radius-sm);
+    background: #F5F3F0;
+    margin: 0 4px 4px 0;
+    font-size: 13px;
+  }
+  .phrase-item .ph-en {
+    font-weight: 500;
+    color: var(--text);
+  }
+  .phrase-item .ph-cn {
+    color: var(--text-tertiary);
+    font-size: 11px;
+  }
+
+  /* Memory method */
+  .memory-block {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #FFF9ED 0%, #FFF3D6 100%);
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6B4F10;
+    border: 1px solid #F0E0B0;
+  }
+  .memory-block .mem-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #A07C20;
+    margin-bottom: 4px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+  }
+  .empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+  .empty-state p {
+    font-size: 14px;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  /* Audio pulse */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .btn-audio.playing svg {
+    animation: pulse 0.6s ease infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word-item, .detail-card, .btn-audio svg {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  /* ── Word Popup Modal ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 85dvh;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center;
+  }
+  .modal-backdrop.visible .modal-card {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-word {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+
+  .modal-phonetic {
+    font-size: 15px;
+    color: var(--text-tertiary);
+    font-family: "Segoe UI Symbol", "Charis SIL", "DejaVu Sans", sans-serif;
+    margin-bottom: 2px;
+  }
+
+  .modal-pos {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+
+  .modal-trans {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .modal-source {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+  }
+  .modal-source span {
+    color: var(--accent-word);
+    font-weight: 500;
+  }
+
+  /* Modal detail sections — reuse card section styles */
+  .modal-detail {
+    text-align: left;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-detail .detail-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+  .modal-detail .forms-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .modal-detail .syno-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .modal-detail .sentence-item {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: #F9F8F6;
+    margin-bottom: 6px;
+  }
+  .modal-detail .sentence-item .s-en {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 3px;
+  }
+  .modal-detail .sentence-item .s-cn {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .modal-close {
+    display: inline-block;
+    padding: 8px 28px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .modal-close:hover {
+    background: #F5F3F0;
+    border-color: #C0BBB5;
+  }
+
+  .modal-notfound {
+    color: var(--text-tertiary);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .modal-audio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 6px;
+  }
+  .modal-audio-btn:hover {
+    background: #F5F3F0;
+  }
+  .modal-audio-btn.playing {
+    background: #EDE8FF;
+    border-color: #B8A8E0;
+    color: #6B5BA0;
+  }
+  .modal-audio-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .word-item {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .word-item:active {
+    transform: scale(0.995);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-title">WordMate</div>
+    <div class="header-meta">IELTS 核心词汇 · 共 12 词</div>
+  </header>
+
+  <nav class="filter-row" aria-label="筛选词汇">
+    <button class="chip active" data-filter="all">全部</button>
+    <button class="chip" data-filter="review">需复习</button>
+    <button class="chip" data-filter="new">未标记</button>
+    <button class="chip" data-filter="known">已掌握</button>
+  </nav>
+
+  <main class="word-list" id="wordList" aria-label="单词列表"></main>
+</div>
+
+<audio id="audioPlayer" preload="none"></audio>
+
+<!-- Word Popup Modal -->
+<div class="modal-backdrop" id="wordModal" onclick="hideModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-word" id="modalWord">—</div>
+    <div class="modal-phonetic" id="modalPhonetic"></div>
+    <div class="modal-pos" id="modalPos"></div>
+    <div class="modal-trans" id="modalTrans"></div>
+    <div class="modal-source" id="modalSource"></div>
+    <div class="modal-notfound" id="modalNotFound" style="display:none"></div>
+
+    <button class="modal-audio-btn" id="modalAudioBtn" onclick="playModalAudio()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      </svg>
+      播放英音
+    </button>
+
+    <div class="modal-detail" id="modalRelWords" style="display:none">
+      <div class="detail-section-label">📐 词形变化 & 同根词</div>
+      <div class="forms-grid" id="modalRelWordsGrid"></div>
+    </div>
+
+    <div class="modal-detail" id="modalSynonyms" style="display:none">
+      <div class="detail-section-label">🔗 同近义词</div>
+      <div class="syno-list" id="modalSynonymsList"></div>
+    </div>
+
+    <div class="modal-detail" id="modalSentences" style="display:none">
+      <div class="detail-section-label">📝 例句</div>
+      <div id="modalSentencesList"></div>
+    </div>
+
+    <div class="modal-detail" id="modalPhrases" style="display:none">
+      <div class="detail-section-label">💬 短语搭配</div>
+      <div id="modalPhrasesList"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-close" onclick="hideModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const words = [
+  {
+    headWord: "sensible", usphone: "'sɛnsəbl", ukphone: "'sensɪb(ə)l", pos: "adj",
+    trans: "可感觉的；明智的",
+    sentence: [
+      { en: "She seems very sensible.", cn: "她好像很明智。" },
+      { en: "It's sensible to keep a note of your passport number.", cn: "把你的护照号码记下来是明智的。" }
+    ],
+    syno: { pos: "adj", words: ["obvious", "aware", "distinct", "wise", "visible"] },
+    relWord: {
+      adj: [{ hwd: "sensitive", tran: "敏感的" }, { hwd: "senseless", tran: "愚蠢的" }, { hwd: "sensate", tran: "可感觉的" }],
+      adv: [{ hwd: "sensibly", tran: "明显地" }, { hwd: "sensitively", tran: "敏感地" }],
+      n: [{ hwd: "sense", tran: "感觉;理智" }, { hwd: "sensation", tran: "轰动" }, { hwd: "sensitivity", tran: "敏感性" }],
+      v: [{ hwd: "sensing", tran: "感觉" }],
+      vt: [{ hwd: "sense", tran: "感觉到" }]
+    },
+    phrase: [{ en: "sensible heat", cn: "显热" }, { en: "sensible of", cn: "察觉;了解" }],
+    remMethod: "sens(感觉) + ible(可...的) → 可感觉到的 → 合情理的",
+    bookId: "IELTS", state: 0
+  },
+  {
+    headWord: "elaborate", usphone: "ɪ'læbərət", ukphone: "ɪ'læb(ə)rət", pos: "adj",
+    trans: "精心制作的；详尽的",
+    sentence: [
+      { en: "She had prepared a very elaborate meal.", cn: "她准备了一顿非常精致的饭菜。" },
+      { en: "He declined to elaborate on the issue.", cn: "他拒绝详细说明这个问题。" }
+    ],
+    syno: { pos: "adj", words: ["detailed", "complex", "intricate", "sophisticated", "exhaustive"] },
+    relWord: {
+      adj: [{ hwd: "elaborative", tran: "详尽的" }],
+      adv: [{ hwd: "elaborately", tran: "精心地" }],
+      n: [{ hwd: "elaboration", tran: "精心制作" }, { hwd: "elaborateness", tran: "精致" }],
+      v: [{ hwd: "elaborate", tran: "详细说明" }]
+    },
+    phrase: [{ en: "elaborate on", cn: "详细说明" }, { en: "elaborate design", cn: "精心的设计" }],
+    remMethod: "e(出) + labor(劳动) + ate → 付出劳动做出来的 → 精心制作的",
+    bookId: "IELTS", state: 2
+  },
+  {
+    headWord: "phenomenon", usphone: "fə'nɑmɪnən", ukphone: "fɪ'nɒmɪnən", pos: "n",
+    trans: "现象；奇迹；杰出人才",
+    sentence: [
+      { en: "Globalization is a phenomenon of the 21st century.", cn: "全球化是21世纪的现象。" },
+      { en: "The northern lights are a natural phenomenon.", cn: "北极光是一种迷人的自然现象。" }
+    ],
+    syno: { pos: "n", words: ["occurrence", "event", "marvel", "wonder", "sensation"] },
+    relWord: {
+      adj: [{ hwd: "phenomenal", tran: "非凡的" }],
+      adv: [{ hwd: "phenomenally", tran: "惊人地" }],
+      n: [{ hwd: "phenomena", tran: "现象(复数)" }, { hwd: "phenomenology", tran: "现象学" }]
+    },
+    phrase: [{ en: "natural phenomenon", cn: "自然现象" }, { en: "social phenomenon", cn: "社会现象" }],
+    remMethod: "pheno(显现) + menon → 显现出来的东西 → 现象",
+    bookId: "IELTS", state: 0
+  },
+  {
+    headWord: "controversial", usphone: ",kɑntrə'vɝʃəl", ukphone: ",kɒntrə'vɜːʃ(ə)l", pos: "adj",
+    trans: "有争议的；引起争论的",
+    sentence: [
+      { en: "The controversial proposal sparked heated debate.", cn: "这个有争议的提案引发了激烈的辩论。" },
+      { en: "Abortion remains a highly controversial issue.", cn: "堕胎仍然是一个极具争议的话题。" }
+    ],
+    syno: { pos: "adj", words: ["contentious", "disputed", "debatable", "polemical", "divisive"] },
+    relWord: {
+      adv: [{ hwd: "controversially", tran: "有争议地" }],
+      n: [{ hwd: "controversy", tran: "争论" }],
+      v: [{ hwd: "controvert", tran: "驳斥" }]
+    },
+    phrase: [{ en: "controversial issue", cn: "争议性问题" }, { en: "highly controversial", cn: "极具争议的" }],
+    remMethod: "contro(相反) + vers(转) + ial → 反着转的 → 有争议的",
+    bookId: "IELTS", state: 1
+  },
+  {
+    headWord: "perceive", usphone: "pər'siv", ukphone: "pə'siːv", pos: "v",
+    trans: "察觉；感知；理解",
+    sentence: [
+      { en: "I perceived a change in his attitude.", cn: "我察觉到他态度的变化。" },
+      { en: "Many people perceive him as a threat.", cn: "许多人视他为威胁。" }
+    ],
+    syno: { pos: "v", words: ["detect", "discern", "recognize", "sense", "comprehend"] },
+    relWord: {
+      adj: [{ hwd: "perceptive", tran: "洞察力强的" }, { hwd: "perceivable", tran: "可察觉的" }, { hwd: "perceptual", tran: "感知的" }],
+      adv: [{ hwd: "perceptively", tran: "有洞察力地" }],
+      n: [{ hwd: "perception", tran: "感知;看法" }, { hwd: "perceptiveness", tran: "洞察力" }, { hwd: "perceptivity", tran: "感知力" }]
+    },
+    phrase: [{ en: "perceive as", cn: "视为;理解为" }, { en: "perceive the difference", cn: "察觉差异" }],
+    remMethod: "per(完全) + ceive(拿取) → 完全拿取信息 → 感知;察觉",
+    bookId: "IELTS", state: 2
+  },
+  {
+    headWord: "substantial", usphone: "səb'stænʃəl", ukphone: "səb'stænʃ(ə)l", pos: "adj",
+    trans: "大量的；实质的；坚固的",
+    sentence: [
+      { en: "We have made substantial progress this quarter.", cn: "本季度我们取得了实质性进展。" },
+      { en: "A substantial number of people support the reform.", cn: "相当多的人支持这项改革。" }
+    ],
+    syno: { pos: "adj", words: ["considerable", "significant", "solid", "essential", "material"] },
+    relWord: {
+      adj: [{ hwd: "substantive", tran: "实质性的" }],
+      adv: [{ hwd: "substantially", tran: "实质上;大量地" }],
+      n: [{ hwd: "substance", tran: "物质;实质" }, { hwd: "substantiation", tran: "证实" }],
+      v: [{ hwd: "substantiate", tran: "证实" }]
+    },
+    phrase: [{ en: "substantial amount", cn: "大量" }, { en: "substantial evidence", cn: "确凿的证据" }],
+    remMethod: "sub(在...下面) + stant(站立) + ial → 站在下面的 → 实质的;坚固的",
+    bookId: "IELTS", state: 1
+  },
+  {
+    headWord: "ambiguous", usphone: "æm'bɪɡjuəs", ukphone: "æm'bɪɡjuəs", pos: "adj",
+    trans: "模糊不清的；模棱两可的",
+    sentence: [
+      { en: "The wording of the contract is deliberately ambiguous.", cn: "合同的措辞故意含糊其辞。" },
+      { en: "Her answer was ambiguous at best.", cn: "她的回答充其量是模棱两可的。" }
+    ],
+    syno: { pos: "adj", words: ["vague", "obscure", "unclear", "equivocal", "uncertain"] },
+    relWord: {
+      adj: [{ hwd: "ambivalent", tran: "矛盾的" }],
+      adv: [{ hwd: "ambiguously", tran: "含糊地" }],
+      n: [{ hwd: "ambiguity", tran: "含糊;模棱两可" }, { hwd: "ambiguousness", tran: "模糊性" }]
+    },
+    phrase: [{ en: "ambiguous statement", cn: "含糊的陈述" }, { en: "deliberately ambiguous", cn: "故意模糊的" }],
+    remMethod: "ambi(两边的) + gu + ous → 两边都可以走 → 模棱两可的",
+    bookId: "IELTS", state: 2
+  },
+  {
+    headWord: "inevitable", usphone: "ɪn'ɛvɪtəbl", ukphone: "ɪn'evɪtəb(ə)l", pos: "adj",
+    trans: "不可避免的；必然发生的",
+    sentence: [
+      { en: "Change is inevitable as we grow older.", cn: "随着年龄增长，变化是不可避免的。" },
+      { en: "It was inevitable that they would clash.", cn: "他们发生冲突是必然的。" }
+    ],
+    syno: { pos: "adj", words: ["unavoidable", "inescapable", "certain", "predestined", "assured"] },
+    relWord: {
+      adj: [{ hwd: "evitable", tran: "可避免的" }],
+      adv: [{ hwd: "inevitably", tran: "不可避免地" }],
+      n: [{ hwd: "inevitability", tran: "必然性" }, { hwd: "inevitableness", tran: "不可避免" }]
+    },
+    phrase: [{ en: "inevitable consequence", cn: "不可避免的后果" }, { en: "the inevitable", cn: "必然的事" }],
+    remMethod: "in(不) + evitable(可避免的) → 不可避免的",
+    bookId: "IELTS", state: 0
+  },
+  {
+    headWord: "conscientious", usphone: ",kɑnʃi'ɛnʃəs", ukphone: ",kɒnʃɪ'enʃəs", pos: "adj",
+    trans: "认真的；尽责的；一丝不苟的",
+    sentence: [
+      { en: "She is a conscientious worker who never misses deadlines.", cn: "她是一位认真负责的员工，从不逾期。" },
+      { en: "He made a conscientious effort to improve.", cn: "他认真努力地改进。" }
+    ],
+    syno: { pos: "adj", words: ["diligent", "meticulous", "thorough", "scrupulous", "painstaking"] },
+    relWord: {
+      adj: [{ hwd: "conscious", tran: "有意识的" }, { hwd: "conscienceless", tran: "没良心的" }],
+      adv: [{ hwd: "conscientiously", tran: "认真地" }],
+      n: [{ hwd: "conscience", tran: "良心" }, { hwd: "conscientiousness", tran: "尽责" }, { hwd: "consciousness", tran: "意识" }]
+    },
+    phrase: [{ en: "conscientious objection", cn: "良心反对" }, { en: "conscientious worker", cn: "认真负责的员工" }],
+    remMethod: "con(共同) + sci(知道) + entious → 内心都知道 → 有良心的 → 认真的",
+    bookId: "IELTS", state: 1
+  },
+  {
+    headWord: "extravagant", usphone: "ɪk'strævəɡənt", ukphone: "ɪk'strævəɡ(ə)nt", pos: "adj",
+    trans: "奢侈的；浪费的；过度的",
+    sentence: [
+      { en: "Their wedding was an extravagant affair.", cn: "他们的婚礼是一场极其奢华的盛事。" },
+      { en: "Don't be so extravagant with your praise.", cn: "别那么过度夸奖。" }
+    ],
+    syno: { pos: "adj", words: ["lavish", "luxurious", "excessive", "prodigal", "wasteful"] },
+    relWord: {
+      adv: [{ hwd: "extravagantly", tran: "奢侈地" }],
+      n: [{ hwd: "extravagance", tran: "奢侈;浪费" }, { hwd: "extravaganza", tran: "盛大的演出" }]
+    },
+    phrase: [{ en: "extravagant lifestyle", cn: "奢侈的生活方式" }, { en: "extravagant claims", cn: "过分的要求" }],
+    remMethod: "extra(超出) + vag(漫游) + ant → 超出范围漫游 → 过度的;奢侈的",
+    bookId: "IELTS", state: 0
+  },
+  {
+    headWord: "hypothesis", usphone: "haɪ'pɑθəsɪs", ukphone: "haɪ'pɒθɪsɪs", pos: "n",
+    trans: "假说；假设；前提",
+    sentence: [
+      { en: "The scientist tested her hypothesis through experiments.", cn: "那位科学家通过实验验证了她的假说。" },
+      { en: "These observations support our working hypothesis.", cn: "这些观察结果支持我们的工作假设。" }
+    ],
+    syno: { pos: "n", words: ["theory", "assumption", "premise", "supposition", "conjecture"] },
+    relWord: {
+      adj: [{ hwd: "hypothetical", tran: "假设的" }, { hwd: "hypothetic", tran: "假设的" }],
+      adv: [{ hwd: "hypothetically", tran: "假设地" }],
+      n: [{ hwd: "hypotheses", tran: "假说(复数)" }],
+      v: [{ hwd: "hypothesize", tran: "假设" }]
+    },
+    phrase: [{ en: "working hypothesis", cn: "工作假设" }, { en: "null hypothesis", cn: "零假设" }],
+    remMethod: "hypo(在下) + thesis(论点) → 底层的论点 → 假说;前提",
+    bookId: "IELTS", state: 2
+  },
+  {
+    headWord: "predominantly", usphone: "prɪ'dɑmɪnəntli", ukphone: "prɪ'dɒmɪnəntli", pos: "adv",
+    trans: "主要地；占主导地位地",
+    sentence: [
+      { en: "The region is predominantly agricultural.", cn: "该地区以农业为主。" },
+      { en: "The audience was predominantly female.", cn: "观众主要是女性。" }
+    ],
+    syno: { pos: "adv", words: ["mainly", "primarily", "chiefly", "largely", "principally"] },
+    relWord: {
+      adj: [{ hwd: "predominant", tran: "主要的" }, { hwd: "predominate", tran: "占优势的" }],
+      n: [{ hwd: "predominance", tran: "主导地位" }, { hwd: "predomination", tran: "支配" }],
+      v: [{ hwd: "predominate", tran: "占主导" }]
+    },
+    phrase: [{ en: "predominantly used", cn: "主要使用的" }, { en: "predominantly based on", cn: "主要基于" }],
+    remMethod: "pre(前) + dominant(主导的) + ly → 在前面主导 → 主要地",
+    bookId: "IELTS", state: 0
+  }
+];
+
+let currentFilter = 'all';
+let currentAudioBtn = null;
+
+function playAudio(word, type) {
+  const player = document.getElementById('audioPlayer');
+  const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+  if (currentAudioBtn) currentAudioBtn.classList.remove('playing');
+  const btn = document.querySelector(`.btn-audio[data-word="${word}"]`);
+  if (btn) { btn.classList.add('playing'); currentAudioBtn = btn; setTimeout(() => btn.classList.remove('playing'), 1500); }
+  player.src = url; player.load(); player.play().catch(() => {});
+}
+
+function toggleState(headWord) {
+  const word = words.find(w => w.headWord === headWord);
+  if (!word) return;
+  word.state = (word.state + 1) % 3;
+  renderList();
+}
+
+function toggleExpand(el) {
+  const wasExpanded = el.classList.contains('expanded');
+  document.querySelectorAll('.word-item.expanded').forEach(item => item.classList.remove('expanded'));
+  if (!wasExpanded) el.classList.add('expanded');
+}
+
+// ── Word Popup Modal ──
+let modalWord = '';
+let modalAudioBtnEl = null;
+
+// Normalize and fill all detail sections from a word data object
+function populateModalDetails(d) {
+  // d is either a local word entry or a normalized API result
+
+  // ── Rel Words ──
+  const relWordSection = document.getElementById('modalRelWords');
+  const relWordGrid = document.getElementById('modalRelWordsGrid');
+  let hasRel = false;
+
+  if (d.relWord && typeof d.relWord === 'object') {
+    let html = '';
+    for (const [pos, arr] of Object.entries(d.relWord)) {
+      html += (arr || []).map(rw =>
+        `<span class="form-tag"><span class="form-pos">${pos}.</span><span class="form-word">${rw.hwd}</span><span class="form-tran">${rw.tran || ''}</span></span>`
+      ).join('');
+    }
+    relWordGrid.innerHTML = html;
+    hasRel = !!html;
+  } else {
+    relWordGrid.innerHTML = '';
+  }
+  relWordSection.style.display = hasRel ? '' : 'none';
+
+  // ── Synonyms ──
+  const synoSection = document.getElementById('modalSynonyms');
+  const synoList = document.getElementById('modalSynonymsList');
+  let hasSyno = false;
+
+  if (d.syno) {
+    if (Array.isArray(d.syno)) {
+      // API format: [{ pos, tran, Hwds: [{word}] }]
+      let html = '';
+      for (const g of d.syno) {
+        html += (g.Hwds || []).map(h =>
+          `<span class="syno-chip"><span class="syno-pos">${g.pos || ''}.</span> ${h.word || h.w || ''}</span>`
+        ).join('');
+      }
+      synoList.innerHTML = html;
+      hasSyno = !!html;
+    } else if (d.syno.words) {
+      // Local format: { pos, words: [] }
+      synoList.innerHTML = d.syno.words.map(s =>
+        `<span class="syno-chip"><span class="syno-pos">${d.syno.pos}.</span> ${s}</span>`
+      ).join('');
+      hasSyno = d.syno.words.length > 0;
+    }
+  } else {
+    synoList.innerHTML = '';
+  }
+  synoSection.style.display = hasSyno ? '' : 'none';
+
+  // ── Sentences ──
+  const sentSection = document.getElementById('modalSentences');
+  const sentList = document.getElementById('modalSentencesList');
+  let hasSent = false;
+
+  if (d.sentence && d.sentence.length > 0) {
+    sentList.innerHTML = d.sentence.map(s =>
+      `<div class="sentence-item"><div class="s-en">${s.en || s.s_content || ''}</div><div class="s-cn">${s.cn || s.s_cn || ''}</div></div>`
+    ).join('');
+    hasSent = true;
+  } else {
+    sentList.innerHTML = '';
+  }
+  sentSection.style.display = hasSent ? '' : 'none';
+
+  // ── Phrases ──
+  const phrSection = document.getElementById('modalPhrases');
+  const phrList = document.getElementById('modalPhrasesList');
+  let hasPhr = false;
+
+  if (d.phrase && d.phrase.length > 0) {
+    phrList.innerHTML = d.phrase.map(p =>
+      `<span class="phrase-item"><span class="ph-en">${p.en || p.p_content || ''}</span><span class="ph-cn">${p.cn || p.p_cn || ''}</span></span>`
+    ).join('');
+    hasPhr = true;
+  } else {
+    phrList.innerHTML = '';
+  }
+  phrSection.style.display = hasPhr ? '' : 'none';
+}
+
+function clearModalDetails() {
+  document.getElementById('modalRelWords').style.display = 'none';
+  document.getElementById('modalRelWordsGrid').innerHTML = '';
+  document.getElementById('modalSynonyms').style.display = 'none';
+  document.getElementById('modalSynonymsList').innerHTML = '';
+  document.getElementById('modalSentences').style.display = 'none';
+  document.getElementById('modalSentencesList').innerHTML = '';
+  document.getElementById('modalPhrases').style.display = 'none';
+  document.getElementById('modalPhrasesList').innerHTML = '';
+  document.getElementById('modalNotFound').style.display = 'none';
+  document.getElementById('modalAudioBtn').style.display = 'none';
+  document.getElementById('modalAudioBtn').dataset.speechUrl = '';
+}
+
+function showModal(word, sourceWord) {
+  modalWord = word;
+  clearModalDetails();
+
+  document.getElementById('modalWord').textContent = word;
+  document.getElementById('modalTrans').textContent = '查询中…';
+  document.getElementById('wordModal').classList.add('visible');
+
+  // Step 1: try local dataset
+  const found = words.find(w => w.headWord.toLowerCase() === word.toLowerCase());
+  if (found) {
+    document.getElementById('modalPhonetic').textContent = `/${found.usphone.replace(/'/g, '')}/`;
+    document.getElementById('modalPos').textContent = found.pos;
+    document.getElementById('modalTrans').textContent = found.trans;
+    document.getElementById('modalSource').innerHTML = `来自词库 · <span>${found.bookId}</span>`;
+    document.getElementById('modalAudioBtn').style.display = 'inline-flex';
+    populateModalDetails(found);
+    return;
+  }
+
+  // Step 2: fallback — query API
+  document.getElementById('modalSource').innerHTML = sourceWord
+    ? `由 <span>${sourceWord}</span> 关联 · <em style="color:#9C9690">正在联网查询…</em>`
+    : '<em style="color:#9C9690">正在联网查询…</em>';
+
+  fetchWordFromAPI(word, sourceWord);
+}
+
+async function fetchWordFromAPI(word, sourceWord) {
+  const API_KEY = 'ab432345-6d31-470d-a3e4-898920ce5069';
+  const API_URL = `https://api.ruseo.cn/api/englishwords?word=${encodeURIComponent(word)}&key=${API_KEY}`;
+
+  try {
+    const resp = await fetch(API_URL);
+    if (!resp.ok) throw new Error('API not ok');
+
+    const json = await resp.json();
+
+    // API may wrap response in "data" or return flat — handle both
+    const d = json.data || json;
+
+    if (!d.success && !d.word) throw new Error('word not found');
+
+    const phonetic = d.us_phone ? `/${d.us_phone}/` : (d.uk_phone ? `/${d.uk_phone}/` : '');
+    const pos = (d.translations || []).map(t => t.pos).filter(Boolean).join(' · ');
+    const trans = (d.translations || []).map(t => t.tran_cn).filter(Boolean).join('；');
+
+    document.getElementById('modalPhonetic').textContent = phonetic;
+    document.getElementById('modalPos').textContent = pos;
+    document.getElementById('modalTrans').textContent = trans || '（未找到释义）';
+    document.getElementById('modalSource').innerHTML = sourceWord
+      ? `由 <span>${sourceWord}</span> 关联 · <span style="color:#6A9B7A">澄曜词典</span>`
+      : '<span style="color:#6A9B7A">澄曜词典</span>';
+    document.getElementById('modalAudioBtn').style.display = 'inline-flex';
+    document.getElementById('modalNotFound').style.display = 'none';
+
+    const speechUrl = d.uk_speech || d.us_speech || '';
+    document.getElementById('modalAudioBtn').dataset.speechUrl = speechUrl;
+
+    // Fill detail sections from API data — normalize to same shape
+    populateModalDetails({
+      relWord: normalizeApiRelWords(d.rel_words),
+      syno: d.synonyms || [],
+      sentence: d.sentences || [],
+      phrase: d.phrases || []
+    });
+
+  } catch (err) {
+    document.getElementById('modalTrans').textContent = '';
+    document.getElementById('modalSource').innerHTML = sourceWord
+      ? `由 <span>${sourceWord}</span> 关联`
+      : '';
+    document.getElementById('modalNotFound').style.display = 'block';
+    document.getElementById('modalNotFound').textContent = '本地及在线词典均未收录该词';
+  }
+}
+
+// Normalize API rel_words into the same {pos: [{hwd, tran}]} shape as local data
+function normalizeApiRelWords(apiRels) {
+  if (!apiRels || !Array.isArray(apiRels)) return null;
+  const result = {};
+  for (const g of apiRels) {
+    const pos = (g.Pos || g.pos || '').toLowerCase();
+    if (pos && g.Hwds) {
+      result[pos] = g.Hwds.map(h => ({ hwd: h.hwd, tran: h.tran || '' }));
+    }
+  }
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+function hideModal() {
+  document.getElementById('wordModal').classList.remove('visible');
+  // Reset audio button state
+  if (modalAudioBtnEl) {
+    modalAudioBtnEl.classList.remove('playing');
+    modalAudioBtnEl = null;
+  }
+}
+
+function playModalAudio() {
+  if (!modalWord) return;
+  const player = document.getElementById('audioPlayer');
+  const btn = document.getElementById('modalAudioBtn');
+
+  // Use API-returned speech URL if available, otherwise fallback to Youdao
+  const speechUrl = btn.dataset.speechUrl;
+  const url = speechUrl
+    || `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(modalWord)}&type=1`;
+
+  if (modalAudioBtnEl) modalAudioBtnEl.classList.remove('playing');
+  btn.classList.add('playing');
+  modalAudioBtnEl = btn;
+  setTimeout(() => btn.classList.remove('playing'), 1500);
+  player.src = url; player.load(); player.play().catch(() => {});
+}
+
+// ── Event Delegation for form-tag and syno-chip clicks ──
+document.getElementById('wordList').addEventListener('click', (e) => {
+  const formTag = e.target.closest('.form-tag');
+  const synoChip = e.target.closest('.syno-chip');
+
+  if (formTag) {
+    e.stopPropagation();
+    const wordEl = formTag.querySelector('.form-word');
+    const clickedWord = wordEl ? wordEl.textContent.trim() : '';
+    // Find parent word-item to get the source word
+    const parentItem = formTag.closest('.word-item');
+    const sourceWord = parentItem ? parentItem.dataset.word : '';
+    if (clickedWord) showModal(clickedWord, sourceWord);
+    return;
+  }
+
+  if (synoChip) {
+    e.stopPropagation();
+    // Syno chip text is like "adj. obvious" — extract just the word
+    const text = synoChip.textContent.trim();
+    const parts = text.split('. ');
+    const clickedWord = parts.length > 1 ? parts[1].trim() : text;
+    const parentItem = synoChip.closest('.word-item');
+    const sourceWord = parentItem ? parentItem.dataset.word : '';
+    if (clickedWord) showModal(clickedWord, sourceWord);
+    return;
+  }
+});
+
+document.querySelector('.filter-row').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentFilter = chip.dataset.filter;
+  document.querySelectorAll('.word-item.expanded').forEach(item => item.classList.remove('expanded'));
+  renderList();
+});
+
+function renderList() {
+  const container = document.getElementById('wordList');
+  let filtered = words;
+  if (currentFilter === 'known') filtered = words.filter(w => w.state === 1);
+  else if (currentFilter === 'review') filtered = words.filter(w => w.state === 2);
+  else if (currentFilter === 'new') filtered = words.filter(w => w.state === 0);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>这个分组里还没有词汇。<br>去标记一些单词吧。</p></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(w => {
+    const stateClass = w.state === 1 ? 'state-known' : w.state === 2 ? 'state-review' : '';
+    const knownActive = w.state === 1 ? 'active' : '';
+    const reviewActive = w.state === 2 ? 'active' : '';
+    const stateLabel = w.state === 1 ? '✓ 已掌握' : w.state === 2 ? '⚠ 需复习' : '';
+
+    let relWordHTML = '';
+    if (w.relWord) {
+      for (const [pos, wordsArr] of Object.entries(w.relWord)) {
+        relWordHTML += wordsArr.map(rw =>
+          `<span class="form-tag"><span class="form-pos">${pos}.</span><span class="form-word">${rw.hwd}</span><span class="form-tran">${rw.tran}</span></span>`
+        ).join('');
+      }
+    }
+
+    let synoHTML = '';
+    if (w.syno && w.syno.words) {
+      synoHTML = w.syno.words.map(s =>
+        `<span class="syno-chip"><span class="syno-pos">${w.syno.pos}.</span> ${s}</span>`
+      ).join('');
+    }
+
+    let sentencesHTML = '';
+    if (w.sentence) {
+      sentencesHTML = w.sentence.map(s =>
+        `<div class="sentence-item"><div class="s-en">${s.en}</div><div class="s-cn">${s.cn}</div></div>`
+      ).join('');
+    }
+
+    let phrasesHTML = '';
+    if (w.phrase) {
+      phrasesHTML = w.phrase.map(p =>
+        `<span class="phrase-item"><span class="ph-en">${p.en}</span><span class="ph-cn">${p.cn}</span></span>`
+      ).join('');
+    }
+
+    return `
+    <div class="word-item ${stateClass}" data-word="${w.headWord}">
+      <div class="word-row" onclick="toggleExpand(this.closest('.word-item'))">
+        <div class="word-info">
+          <div class="word-head">
+            <span class="word">${w.headWord}</span>
+            <span class="phonetic">/${w.usphone.replace(/'/g, '')}/</span>
+            <span class="pos-tag">${w.pos}${stateLabel ? ' · ' + stateLabel : ''}</span>
+          </div>
+          <div class="word-cn">${w.trans}</div>
+        </div>
+        <div class="word-actions" onclick="event.stopPropagation()">
+          <button class="btn-audio" data-word="${w.headWord}" title="播放英音" onclick="playAudio('${w.headWord}', 1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+          <button class="btn-mark known ${knownActive}" title="标记为已掌握" onclick="toggleState('${w.headWord}')">✓</button>
+          <button class="btn-mark review ${reviewActive}" title="标记为需复习" onclick="toggleState('${w.headWord}')">!</button>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-inner">
+          ${relWordHTML ? `<div class="detail-section"><div class="detail-section-label">📐 词形变化 & 同根词</div><div class="forms-grid">${relWordHTML}</div></div>` : ''}
+          ${synoHTML ? `<div class="detail-section"><div class="detail-section-label">🔗 同近义词</div><div class="syno-list">${synoHTML}</div></div>` : ''}
+          ${sentencesHTML ? `<div class="detail-section"><div class="detail-section-label">📝 例句</div>${sentencesHTML}</div>` : ''}
+          ${phrasesHTML ? `<div class="detail-section"><div class="detail-section-label">💬 短语搭配</div><div>${phrasesHTML}</div></div>` : ''}
+          ${w.remMethod ? `<div class="detail-section"><div class="memory-block"><span class="mem-label">🧠 词根记忆法</span>${w.remMethod}</div></div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+renderList();
+</script>
+</body>
+</html>
