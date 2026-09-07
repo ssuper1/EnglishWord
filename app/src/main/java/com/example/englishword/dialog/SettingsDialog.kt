@@ -1,12 +1,15 @@
 package com.example.englishword.dialog
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
@@ -20,6 +23,8 @@ class SettingsDialog : DialogFragment() {
     private var onApply: ((Int, Int) -> Unit)? = null
 
     companion object {
+        private const val REQUEST_IMPORT_DICT = 1001
+
         fun newInstance(
             startPercent: Int,
             endPercent: Int,
@@ -105,12 +110,60 @@ class SettingsDialog : DialogFragment() {
         view.findViewById<TextView>(R.id.btnPreset50).setOnClickListener { applyPreset(0, 50, startSeekBar, endSeekBar, startPercentText, endPercentText, startWordInfo, endWordInfo, rangeSummary) }
         view.findViewById<TextView>(R.id.btnPresetAll).setOnClickListener { applyPreset(0, 100, startSeekBar, endSeekBar, startPercentText, endPercentText, startWordInfo, endWordInfo, rangeSummary) }
 
+        // Import dictionary button (if exists in layout)
+        view.findViewById<Button>(R.id.btnImportDict)?.setOnClickListener {
+            openFilePicker()
+        }
+
         // Apply button
         view.findViewById<TextView>(R.id.btnApply).setOnClickListener {
             val start = startSeekBar.progress
             val end = endSeekBar.progress
             onApply?.invoke(start, end)
             dismiss()
+        }
+    }
+
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+                "text/plain",
+                "text/*",
+                "application/json",
+                "application/octet-stream",
+                "*/*"
+            ))
+        }
+        startActivityForResult(intent, REQUEST_IMPORT_DICT)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMPORT_DICT && resultCode == Activity.RESULT_OK) {
+            data?.data?.let { uri ->
+                try {
+                    val dictId = java.util.UUID.randomUUID().toString()
+                    val dialog = ImportProgressDialog.newInstance { wordCount, savedDictId ->
+                        android.widget.Toast.makeText(requireContext(), "导入成功: $wordCount 个单词", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    dialog.show(parentFragmentManager, "ImportProgressDialog")
+
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        try {
+                            val inputStream = requireContext().contentResolver.openInputStream(uri)
+                            if (inputStream != null) {
+                                dialog.startImport(inputStream, dictId)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }, 100)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 

@@ -21,7 +21,8 @@ class WordAdapter(
     private var words: List<Word>,
     private val onAudioClick: (Word) -> Unit,
     private val onStateToggle: (Word, WordState) -> Unit,
-    private val onWordLookup: (String, String?) -> Unit
+    private val onWordLookup: (String, String?) -> Unit,
+    private val onAddToGroup: ((Word) -> Unit)? = null
 ) : RecyclerView.Adapter<WordAdapter.ViewHolder>() {
 
     private var expandedPosition = -1
@@ -148,6 +149,10 @@ class WordAdapter(
                 expandedPosition = if (expandedPosition == holder.adapterPosition) -1 else holder.adapterPosition
                 notifyItemChanged(oldPos)
                 notifyItemChanged(holder.adapterPosition)
+            }
+            setOnLongClickListener {
+                onAddToGroup?.invoke(word)
+                true
             }
         }
         // Prevent child views from stealing touches

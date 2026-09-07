@@ -3,7 +3,10 @@ package com.example.englishword
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +32,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chipReview: TextView
     private lateinit var chipNew: TextView
     private lateinit var chipKnown: TextView
+
+    private lateinit var searchEditText: EditText
+    private lateinit var clearButton: TextView
+    private var searchQuery: String = ""
 
     private lateinit var adapter: WordAdapter
     private var currentFilter: String = "all"
@@ -63,6 +70,12 @@ class MainActivity : AppCompatActivity() {
         chipReview = findViewById(R.id.chipReview)
         chipNew = findViewById(R.id.chipNew)
         chipKnown = findViewById(R.id.chipKnown)
+
+        searchEditText = findViewById(R.id.searchEditText)
+        clearButton = findViewById(R.id.clearButton)
+
+        // Setup search
+        setupSearch()
 
         // Setup adapter (empty initially)
         adapter = WordAdapter(
@@ -120,6 +133,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSearch() {
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                searchQuery = s?.toString()?.trim() ?: ""
+                clearButton.visibility = if (searchQuery.isNotEmpty()) View.VISIBLE else View.GONE
+                applyFilter()
+            }
+        })
+        clearButton.setOnClickListener {
+            searchEditText.setText("")
+        }
+    }
+
     private fun selectChip(selectedChip: TextView) {
         for (chip in listOf(chipAll, chipReview, chipNew, chipKnown)) {
             chip.isSelected = chip == selectedChip
@@ -127,12 +155,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applyFilter() {
-        val wordsInRange = getWordsInRange()
+        val source = if (searchQuery.isNotEmpty()) {
+            allWords.filter {
+                it.headWord.contains(searchQuery, ignoreCase = true) ||
+                it.trans.contains(searchQuery, ignoreCase = true)
+            }
+        } else {
+            getWordsInRange()
+        }
+
         val filtered = when (currentFilter) {
-            "known" -> wordsInRange.filter { it.state == WordState.KNOWN }
-            "review" -> wordsInRange.filter { it.state == WordState.REVIEW }
-            "new" -> wordsInRange.filter { it.state == WordState.NEW }
-            else -> wordsInRange
+            "known" -> source.filter { it.state == WordState.KNOWN }
+            "review" -> source.filter { it.state == WordState.REVIEW }
+            "new" -> source.filter { it.state == WordState.NEW }
+            else -> source
         }
 
         if (filtered.isEmpty()) {

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/wm_card">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="创建分组"
+        android:textSize="18sp"
+        android:textColor="@color/wm_text"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分组名称"
+        android:textSize="13sp"
+        android:textColor="@color/wm_text_secondary"
+        android:layout_marginBottom="6dp" />
+
+    <EditText
+        android:id="@+id/etGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="输入分组名称"
+        android:textSize="15sp"
+        android:textColor="@color/wm_text"
+        android:textColorHint="@color/wm_text_tertiary"
+        android:background="@drawable/form_tag_background"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:maxLines="1"
+        android:inputType="text"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="单词列表（可选）"
+            android:textSize="13sp"
+            android:textColor="@color/wm_text_secondary" />
+
+        <TextView
+            android:id="@+id/tvPasteFromClipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📋 从剪贴板粘贴"
+            android:textSize="13sp"
+            android:textColor="@color/wm_accent_word"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etWords"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="每行一个单词，或粘贴带翻译的词表&#10;支持多种格式：&#10;· 纯单词&#10;· 单词 翻译&#10;· 单词[音标] 翻译&#10;· JSON格式"
+        android:textSize="14sp"
+        android:textColor="@color/wm_text"
+        android:textColorHint="@color/wm_text_tertiary"
+        android:background="@drawable/form_tag_background"
+        android:padding="12dp"
+        android:gravity="top|start"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:id="@+id/tvWordCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="识别到 0 个单词"
+        android:textSize="12sp"
+        android:textColor="@color/wm_text_tertiary"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:textSize="15sp"
+            android:textColor="@color/wm_text_secondary"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="创建"
+            android:textSize="15sp"
+            android:textColor="@color/wm_accent_word"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+</LinearLayout>

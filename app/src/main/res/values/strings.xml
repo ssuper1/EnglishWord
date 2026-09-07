@@ -14,6 +14,7 @@
     <string name="header_word_count">IELTS 核心词汇 · 共 %d 词</string>
     <string name="empty_state_title">📭</string>
     <string name="empty_state_desc">这个分组里还没有词汇。\n去标记一些单词吧。</string>
+    <string name="search_hint">搜索单词或释义…</string>
     <string name="btn_close">关闭</string>
     <string name="btn_play_audio">播放英音</string>
     <string name="querying">查询中…</string>
@@ -22,4 +23,6 @@
     <string name="source_api">澄曜词典</string>
     <string name="source_linking">由 %s 关联 · 正在联网查询…</string>
     <string name="source_linked">由 %s 关联 · 澄曜词典</string>
+    <string name="nav_words">词库</string>
+    <string name="nav_groups">分组</string>
 </resources>
